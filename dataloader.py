@@ -42,9 +42,11 @@ class Dataset():
         returns a dict with the tags and times used in the dataset
         """
         tag_dict = {}
-        for tag_group in self.contents.keys():
-            tags = tag_group.split(",")
+        for content in self.contents.values():
+            tags = content.split(",")
             for tag in tags:
+                if tag == "" or tag == " ":
+                    continue 
                 tag_dict[tag] = tag_dict.get(tag, 0) + 1
         return {k: v for k, v in sorted(tag_dict.items(), key=lambda item: item[1], reverse=True)}
             

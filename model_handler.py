@@ -35,13 +35,12 @@ class TokenizerModels:
             send_to_tkizer = [text]
         tokenized = []
         for part in send_to_tkizer:
-            tokenized.append(self.tokenizer.encode(part))
+            tokenized.append(self.tokenizer.encode(part, padding="max_length", max_length=self.tokenizer.model_max_length, truncation=True, return_tensors="pt"))
         #send each part through the text encoder
         weights = []
         for part in tokenized:
             #move to cuda IF CUDA is available
-            part = part.to(self.devid)
-            weights.append(self.text_encoder(part.input_ids)[0])
+            weights.append(self.text_encoder(part.to(self.devid))[0])
         stacked = torch.stack(weights)
         total = stacked.sum(dim=0)
         return total

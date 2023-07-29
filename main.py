@@ -9,8 +9,8 @@ def get_useful_tags(dset: Dataset, cfg: MoFUConfig = MoFUConfig()):
     percent = cfg.dropout_percentile
     datasize = len(dset)
     useful = []
-    for tag, used in usage:
-        if used > round(datasize * percent):
+    for tag in usage.keys():
+        if usage[tag] > round(datasize * percent):
             useful.append(tag)
     return useful
 def create_MoFU(tags, cfg: MoFUConfig = MoFUConfig()):
@@ -18,7 +18,7 @@ def create_MoFU(tags, cfg: MoFUConfig = MoFUConfig()):
     MoFU = model.encode(", ".join(tags))
     #save with safetensors
     tosave = {"model": MoFU}
-    pathto = Path(cfg.save_path + cfg.MoFU_name + ".safetensors")
+    pathto = Path(cfg.output_dir + cfg.MoFU_name + ".safetensors")
     
     save_file(tosave, pathto, {"name": cfg.MoFU_name, "base_model": cfg.diffusers_name})
 
