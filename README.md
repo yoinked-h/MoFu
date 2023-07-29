@@ -1,2 +1,2 @@
-## MoFU
-**Mo**del independent **F**ast **U**nderstanding of concepts in Stable Diffusion.
+## MoFu
+**Mo**del independent, **F**ast T**u**ning of Stable Diffusion concepts.
