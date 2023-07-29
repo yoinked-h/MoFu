@@ -1,0 +1,6 @@
+dataset_dir = "./data/"
+diffusers_name = "Birchlabs/wd-1-5-beta3-unofficial"
+device = "cuda"
+dropout_percentile = 0.4
+MoFU_name = "test"
+output_dir = "./output/"
