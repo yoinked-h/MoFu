@@ -4,3 +4,7 @@ device = "cuda"
 dropout_percentile = 0.4
 MoFU_name = "test"
 output_dir = "./output/"
+sdxl = false
+version = 1
+notes = "chen"
+save_precision = "fp16"

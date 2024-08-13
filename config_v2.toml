@@ -1,0 +1,10 @@
+artist_file = "./v2_example.txt"
+diffusers_name = "cagliostrolab/animagine-xl-3.1"
+device = "cuda"
+MoFU_name = "testv2"
+output_dir = "./output/"
+merge_method = "average"
+sdxl = true
+version = 2
+notes = "chen"
+save_precision = "fp16"

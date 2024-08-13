@@ -62,3 +62,29 @@ class Dataset():
             text.replace(" ", ",")
             text.replace("_", " ")
         return text
+class SFDataset():
+    """
+    Dataset class to load data from a single file
+    """
+    def __init__(self, artist_file: str|Path = Path("./v2_example.txt")):
+        if isinstance(artist_file, str):
+            artist_file = Path(artist_file)
+        self.artist_file = artist_file
+        # make sure that dataset_dir is an actual path
+        if not self.artist_file.exists():
+            raise FileNotFoundError(f"Artist file {self.artist_file} does not exist")
+        self.files = []
+        self.contents = {}
+        self._prepare()
+    def _prepare(self):
+        self.content = self._convert(get_file_contents(self.artist_file))
+    def get_tags(self) -> list:
+        """
+        returns a list with the tags in the dataset
+        """
+        return self.content.split(",") 
+    def _convert(self, text):
+        if "_" in text:
+            text.replace(" ", ",")
+            text.replace("_", " ")
+        return text

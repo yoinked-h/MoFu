@@ -1,18 +1,29 @@
 """
 Model handling for MoFU
 """
-from transformers import CLIPTextModel, CLIPTokenizer
+from transformers import CLIPTextModel, CLIPTokenizer, CLIPTextModelWithProjection
 import torch
 
 class TokenizerModels:
     """
     Wrapper for tokenizer and text encoder models
     """
-    def __init__(self, repo: str = "Birchlabs/wd-1-5-beta3-unofficial", device: str = "cuda"):
+    def __init__(self, repo: str = "Birchlabs/wd-1-5-beta3-unofficial", device: str = "cuda", sdxl: bool = False):
         if not isinstance(repo, str):
-            repo = "Birchlabs/wd-1-5-beta3-unofficial"
-        self.tokenizer = CLIPTokenizer.from_pretrained(repo, subfolder="tokenizer")
-        self.text_encoder = CLIPTextModel.from_pretrained(repo, subfolder="text_encoder")
+            if sdxl:
+                repo = "cagliostrolab/animagine-xl-3.1"
+            else:
+                repo = "Birchlabs/wd-1-5-beta3-unofficial"
+        self.sdxl = sdxl
+        if not sdxl:
+            self.tokenizer = CLIPTokenizer.from_pretrained(repo, subfolder="tokenizer")
+            self.text_encoder = CLIPTextModel.from_pretrained(repo, subfolder="text_encoder")
+        else:
+            self.tokenizer = CLIPTokenizer.from_pretrained(repo, subfolder="tokenizer")
+            self.text_encoder = CLIPTextModelWithProjection.from_pretrained(repo, subfolder="text_encoder")
+            self.text_encoder_2 = CLIPTextModel.from_pretrained(repo, subfolder="text_encoder_2")
+            self.text_encoder_2.to(device)
+            
         self.text_encoder.to(device)
         self.devid = device
     def encode(self, text: str) -> torch.Tensor:
@@ -40,7 +51,22 @@ class TokenizerModels:
         weights = []
         for part in tokenized:
             #move to cuda IF CUDA is available
-            weights.append(self.text_encoder(part.to(self.devid))[0])
-        stacked = torch.stack(weights)
-        total = stacked.sum(dim=0)
+            if not self.sdxl:
+                weights.append(self.text_encoder(part.to(self.devid))[0])
+            else:
+                a = self.text_encoder(part.to(self.devid))[0]
+                b = self.text_encoder_2(part.to(self.devid))[0]
+                weights.append([a, b])
+        if not self.sdxl:
+            stacked = torch.stack(weights)
+            total = stacked.sum(dim=0)
+        else:
+            reordered = [[],[]]
+            for part in weights:
+                reordered[0].append(part[0])
+                reordered[1].append(part[1])
+            stacked = [None, None]
+            stacked[0] = torch.stack(reordered[0])
+            stacked[1] = torch.stack(reordered[1])
+            total = [stacked[0].sum(dim=0), stacked[1].sum(dim=0)]
         return total
